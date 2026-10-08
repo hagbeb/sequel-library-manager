@@ -24,7 +24,8 @@ router.get('/', function(req, res, next) {
 // books route
 router.get('/books', asyncHandler(async (req, res) => {
   // findAll books so we can render the list of books
-  const Books = Book.findAll();
+  const Books = await Book.findAll();
+  console.log('Books: ', Books);
   // render template. Pass in data returned from Books.findAll
   res.render('index', { title: 'Books', Books });
 }));
@@ -43,9 +44,25 @@ router.post('/books/new', asyncHandler(async (req, res) => {
   res.redirect('/books/' + book.id);
 }));
 
-// route for individual book pages
-router.get('/books/:id', (req, res) => {
-  res.render('new-book', { title: 'Create New Book' });
-});
+// route for individual books
+router.get('/books/:id', asyncHandler(async(req, res) => {
+  // get book based on id, using the id in the route parameter.
+  // then pass the book in to update-book.pug
+  const book = await Book.findByPk(req.params.id);
+  console.log('book: ', book);
+  res.render('update-book', { book });
+}));
+
+// POST route for updating individual books
+router.post('/books/:id', asyncHandler(async(req, res) => {
+  // find the book to update based on id, using the id in the route parameter.
+  const book = await Book.findByPk(req.params.id);
+  console.log('book: ', book);
+  // then update the book
+  await book.update(req.body);
+  console.log('updated book: ', book);
+  // redirect to the updated book, using it's id:
+  res.redirect('/books/' + book.id);
+}));
 
 module.exports = router;
