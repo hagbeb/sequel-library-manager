@@ -65,4 +65,14 @@ router.post('/books/:id', asyncHandler(async(req, res) => {
   res.redirect('/books/' + book.id);
 }));
 
+// POST route for deleting individual books
+router.post('/books/:id/delete', asyncHandler(async(req, res) => {
+  // find the book to delete based on id, using the id in the route parameter.
+  const book = await Book.findByPk(req.params.id);
+  // then delete the book
+  await book.destroy();
+  // redirect to the updated books list:
+  res.redirect('/books/');
+}));
+
 module.exports = router;

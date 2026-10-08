@@ -14,7 +14,8 @@ block content
     tbody
       each Book in Books
         tr
-          td(href='/book_detail.html')= Book.title 
+          td
+            a(href='/books/' + Book.id)= Book.title 
           td= Book.author
           td= Book.genre
           td= Book.year
