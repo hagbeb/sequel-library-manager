@@ -25,20 +25,30 @@ app.use('/users', usersRouter);
 // load static assets by loading the public folder
 app.use(express.static('public'));
 
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  const err = new Error('Page Not found');
+  err.status = 404;
+  // render the 'page-not-found' template
+  res.render('page-not-found', { err });
 });
 
-// error handler
+// global error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  // set err.message if not already defined
+  if (!err.message) {
+    err.message = 'Server error';
+  }
+  // Set the err.status property to 500 if status isn't already defined
+  if (!err.status) {
+    err.status = 500;
+  }
+  // log error info to console
+  console.log('err.status:, ', err.status);
+  console.log('err.message: ', err.message);
+  // render the 'error' view, passing in the error object
+  res.render('error', { err });
 });
 
 module.exports = app;
