@@ -3,6 +3,14 @@ extends layout
 block content
     h1 Update Book
     form(method="post")
+        if errors
+            h2.error Oooops!
+            ul.error
+                for error in errors
+                    if error.message === 'Book title cannot be empty.'
+                        li Title is required
+                    if error.message === 'Book author cannot be empty.'
+                        li Author is required
         p
             label(for="title") Title
             input#title(name="title" type="text" value=book.title)

@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         notEmpty: {
-          msg: "Boot title cannot be empty."
+          msg: "Book author cannot be empty."
         },
       }
     },

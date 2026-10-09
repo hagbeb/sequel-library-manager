@@ -7,11 +7,29 @@ const Book = require('../models').Book;
 /* Handler function to wrap each route that requires an async call. */
 function asyncHandler(cb){
   return async(req, res, next) => {
+    let book;
     try {
       await cb(req, res, next)
     } catch(error){
-      // This forwards the error to the global error handler in app.js
-      next(error);
+      // If the error caught by catch is a SequelizeValidationError...
+      if(error.name === "SequelizeValidationError") { // checking the error
+        // use build() (NOT create() ) as we are not saving this version, due to error
+        book = await Book.build(req.body);
+        // Pass in the errors so we can display them
+        console.log('book: ', book);
+        // render page that was previously requested. Pass in 'book' to display
+        // if it wasn't the new books page, then re-render the update-book template
+        if (req.originalUrl !== '/books/new') {
+          res.render("update-book", { book, errors: error.errors, title: "Update Book" })
+        } else {
+          // if it was the new books page, re-render 'new-book' template
+          res.render("new-book", { book, errors: error.errors, title: "New Book", Test: output })
+        }
+      } else {
+        // throw other types of errors, which will be handled by the catch block...
+        // ... in the asyncHandler function
+        throw error; // error caught in the asyncHandler's catch block
+      }
     }
   }
 }
@@ -30,9 +48,18 @@ router.get('/books', asyncHandler(async (req, res) => {
   res.render('index', { title: 'Books', Books });
 }));
 
+// test function. 'book' will exist in pug templates where function is called
+function output(attribute) {
+  let att = book[attribute];
+  if (book) {
+    return att;
+  } else {
+    return "";
+  }
+}
 // New Book route (GET version to show the form)
 router.get('/books/new', (req, res) => {
-  res.render('new-book', { title: 'Create New Book' });
+  res.render('new-book', { title: 'Create New Book', Test: output });
 });
 
 // POST new book

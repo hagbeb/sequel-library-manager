@@ -3,18 +3,52 @@ extends layout
 block content
     h1 New Book
     form(method="post")
-        p
-            label(for="title") Title
-            input#title(name="title" type="text")
-        p
-            label(for="author") Author
-            input#author(name="author" type="text")
-        p
-            label(for="genre") Genre
-            input#genre(name="genre" type="text")
-        p
-            label(for="year") Year
-            input#year(name="year" type="text")
+        if errors
+            h2.error Oooops!
+            ul.error
+                for error in errors
+                    if error.message === 'Book title cannot be empty.'
+                        li Title is required
+                    if error.message === 'Book author cannot be empty.'
+                        li Author is required
+            p
+                label(for="title") Title
+                if book.title !== undefined
+                    input#title(name="title" type="text" value=book.title)
+                else
+                    input#title(name="title" type="text")
+            p
+                label(for="author") Author
+                if book.author !== undefined
+                    input#author(name="author" type="text" value=book.author)
+                else
+                    input#author(name="author" type="text")
+            p
+                label(for="genre") Genre
+                if book.genre !== undefined
+                    input#genre(name="genre" type="text" value=book.genre)
+                else
+                    input#genre(name="genre" type="text")
+            p
+                label(for="year") Year
+                if book.year !== undefined
+                    input#year(name="year" type="text" value=book.year)
+                else
+                    input#year(name="year" type="text")
+
+        else
+            p
+                label(for="title") Title
+                input#title(name="title" type="text")
+            p
+                label(for="author") Author
+                input#author(name="author" type="text")
+            p
+                label(for="genre") Genre
+                input#genre(name="genre" type="text")
+            p
+                label(for="year") Year
+                input#year(name="year" type="text")
         p
             input(type="submit" value="Create New Book")
         p
