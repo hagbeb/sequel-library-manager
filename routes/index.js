@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
+// extract the property Op from sequelize
+const { Op } = require('sequelize');
+
 // import Book model exported from Book.js, via /models/index.js
 const Book = require('../models').Book;
 
@@ -23,7 +26,7 @@ function asyncHandler(cb){
           res.render("update-book", { book, errors: error.errors, title: "Update Book" })
         } else {
           // if it was the new books page, re-render 'new-book' template
-          res.render("new-book", { book, errors: error.errors, title: "New Book", Test: output })
+          res.render("new-book", { book, errors: error.errors, title: "New Book" })
         }
       } else {
         // throw other types of errors, which will be handled by the catch block...
@@ -41,31 +44,56 @@ router.get('/', function(req, res, next) {
 
 // books route
 router.get('/books', asyncHandler(async (req, res) => {
-  // findAll books so we can render the list of books
-  const Books = await Book.findAll();
-  console.log('Books: ', Books);
+  // variable to store books
+  let Books;
+  // if the user made a search
+  if (req.query.search) {
+    // find books which contain the search term in one of their fields
+    Books = await Book.findAll({
+      where: {
+          // use Op.or & Op.like to see if search was in any of the fields
+          [Op.or]: [
+            {
+              title: {
+                [Op.like]: `%${req.query.search}%`
+              }
+            },
+            {
+              author: {
+                [Op.like]: `%${req.query.search}%`
+              }
+            },
+            {
+              genre: {
+                [Op.like]: `%${req.query.search}%`
+              }
+            },
+            {
+              year: {
+                [Op.like]: `%${req.query.search}%`
+              }
+            }
+          ]
+        }
+      
+    });
+  // if the user didn't search, then retrieve all books
+  } else {
+    // findAll books so we can render the list of books
+    Books = await Book.findAll();
+  }
   // render template. Pass in data returned from Books.findAll
   res.render('index', { title: 'Books', Books });
 }));
 
-// test function. 'book' will exist in pug templates where function is called
-function output(attribute) {
-  let att = book[attribute];
-  if (book) {
-    return att;
-  } else {
-    return "";
-  }
-}
 // New Book route (GET version to show the form)
 router.get('/books/new', (req, res) => {
-  res.render('new-book', { title: 'Create New Book', Test: output });
+  res.render('new-book', { title: 'Create New Book' });
 });
 
 // POST new book
 router.post('/books/new', asyncHandler(async (req, res) => {
   // create new instance in Book table. req.body contains the form details
-  console.log('req.body: ', req.body);
   const book = await Book.create(req.body);
   // redirect to the new book, using it's newly created id:
   res.redirect('/books/' + book.id);
