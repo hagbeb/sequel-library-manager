@@ -53,8 +53,10 @@ router.get('/', function(req, res, next) {
 router.get('/books', asyncHandler(async (req, res) => {
   // variable to store books
   let Books;
+  let searchTerm = "";
   // if the user made a search
   if (req.query.search) {
+    searchTerm = req.query.search;
     // find books which contain the search term in one of their fields
     Books = await Book.findAndCountAll({
       where: {
@@ -112,7 +114,7 @@ router.get('/books', asyncHandler(async (req, res) => {
   // slice the array to show based on the start and end books above
   const newBooks = Books.rows.slice(startBook, endBook);
   // render template. Pass in new books array, buttonsNeeded & pageNumber
-  res.render('index', { title: 'Books', Books: newBooks, buttons: buttonsNeeded, pageNumber: pageNumber });
+  res.render('index', { title: 'Books', Books: newBooks, buttons: buttonsNeeded, pageNumber: pageNumber, searchTerm: searchTerm });
 }));
 
 // New Book route (GET version to show the form)
