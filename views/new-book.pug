@@ -4,6 +4,7 @@ block content
     div.container
         h1 New Book
         form(method="post")
+            //- if errors were passed in, display them
             if errors
                 h2.error Oooops!
                 ul.error
@@ -12,6 +13,7 @@ block content
                             li Title is required
                         if error.message === 'Book author cannot be empty.'
                             li Author is required
+                //- book fields. Display values if they are not undefined
                 p
                     label(for="title") Title
                     if book.title !== undefined
@@ -36,7 +38,7 @@ block content
                         input#year(name="year" type="text" value=book.year)
                     else
                         input#year(name="year" type="text")
-
+            //- if no errors were passed in, display the empty form
             else
                 p
                     label(for="title") Title
@@ -50,6 +52,7 @@ block content
                 p
                     label(for="year") Year
                     input#year(name="year" type="text")
+            //- create and cancel buttons
             p.innerButtons
                 input(type="submit" value="Create New Book")
             p.innerButtons

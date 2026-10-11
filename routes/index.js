@@ -7,12 +7,8 @@ const { Op } = require('sequelize');
 // import Book model exported from Book.js, via /models/index.js
 const Book = require('../models').Book;
 
-
 // set how many books we want to display per page
 const booksPerPage = 10;
-
-
-
 
 /* Handler function to wrap each route that requires an async call. */
 function asyncHandler(cb){
@@ -22,12 +18,11 @@ function asyncHandler(cb){
       await cb(req, res, next)
     } catch(error){
       // If the error caught by catch is a SequelizeValidationError...
-      if(error.name === "SequelizeValidationError") { // checking the error
+      if(error.name === "SequelizeValidationError") {
         // use build() (NOT create() ) as we are not saving this version, due to error
         book = await Book.build(req.body);
-        // Pass in the errors so we can display them
-        console.log('book: ', book);
         // render page that was previously requested. Pass in 'book' to display
+        // Pass in the errors so we can display them
         // if it wasn't the new books page, then re-render the update-book template
         if (req.originalUrl !== '/books/new') {
           res.render("update-book", { book, errors: error.errors, title: "Update Book" })
@@ -36,9 +31,8 @@ function asyncHandler(cb){
           res.render("new-book", { book, errors: error.errors, title: "New Book" })
         }
       } else {
-        // throw other types of errors, which will be handled by the catch block...
-        // ... in the asyncHandler function
-        throw error; // error caught in the asyncHandler's catch block
+        // pass on other types of errors to global handler
+        next(error);
       }
     }
   }
@@ -54,9 +48,10 @@ router.get('/books', asyncHandler(async (req, res) => {
   // variable to store books
   let Books;
   // variable to store search term, so we can pass this to Pug & so preserve the ...
-  // ... existing search term. Set to default "" in case there is no req.query.search
+  // ... existing search term when the user clicks a page button. 
+  // Set to default "" to prevent Pug undefined error
   let searchTerm = "";
-  // if the user made a search
+  // if the user made a search, store the search term
   if (req.query.search) {
     searchTerm = req.query.search;
     // find books which contain the search term in one of their fields
@@ -89,8 +84,7 @@ router.get('/books', asyncHandler(async (req, res) => {
     });
   // if the user didn't search, then retrieve all books
   } else {
-    // findAll books so we can render the list of books
-    Books = await Book.findAndCountAll();
+      Books = await Book.findAndCountAll();
   }
 
   // GET CURRENT PAGE & BUTTONS NEEDED
@@ -98,12 +92,12 @@ router.get('/books', asyncHandler(async (req, res) => {
   const buttonsNeeded = Math.ceil(Books.count / booksPerPage);
   // variable to store the active page/button
   let pageNumber;
-  // Get the page to display from query param. If the user clicked a page button
+  // Get the page to display from req.query. If the user clicked a page button...
   if (req.query.button) {
-    // set that button to the pageNumber
+    // ...set that button to the pageNumber
     pageNumber = req.query.button;
   } else {
-    // set the pageNumber to 1 ie to show the first page
+    // else, set the pageNumber to 1 ie to show the first page
     pageNumber = 1;
   }
 
@@ -132,24 +126,27 @@ router.post('/books/new', asyncHandler(async (req, res) => {
 }));
 
 // route for individual books
-router.get('/books/:id', asyncHandler(async(req, res) => {
+router.get('/books/:id', asyncHandler(async(req, res, next) => {
   // get book based on id, using the id in the route parameter.
   // then pass the book in to update-book.pug
   const book = await Book.findByPk(req.params.id);
-  console.log('book: ', book);
-  res.render('update-book', { book });
+  // if the book URL exists, render the book
+  if (book) {
+    res.render('update-book', { book });
+  // else pass on to next error handler, which is page-not-found
+  } else {
+    next();   
+  }
 }));
 
 // POST route for updating individual books
 router.post('/books/:id', asyncHandler(async(req, res) => {
   // find the book to update based on id, using the id in the route parameter.
   const book = await Book.findByPk(req.params.id);
-  console.log('book: ', book);
   // then update the book
   await book.update(req.body);
-  console.log('updated book: ', book);
-  // redirect to the updated book, using it's id:
-  res.redirect('/books/' + book.id);
+  // render the updated book, pass in success message:
+  res.render('update-book', { book, title: "Update Book", message: "Book updated!" });
 }));
 
 // POST route for deleting individual books

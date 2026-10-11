@@ -1,36 +1,41 @@
 extends layout
 
 block content
-  
-  h1= title
-  p
-    form(method="get")
-      input#search(name="search" type="text" placeholder="Search..." value=searchTerm)
-      input#searchButton(name="searchButton" type="submit" value="Search")
-  p
-    a.button(href='/books/new') Create New Book
-  table
-    thead
-      tr
-        th Title
-        th Author
-        th Genre
-        th Year
-    tbody
-      each Book in Books
-        tr
-          td
-            a(href='/books/' + Book.id)= Book.title 
-          td= Book.author
-          td= Book.genre
-          td= Book.year
-  p
-    form.pageButtons(method="get")
-      - var n = 1;
-      while n <= buttons
-        if pageNumber == n
-          button.active(name="button" value= n)= n
-        else
-          button(name="button" value= n)= n
-        - n++
-      input(type="hidden" name="search" value=searchTerm)
+  div.container
+      h1= title
+      //- search box
+      div.paraSub
+        form(method="get")
+          input#search(name="search" type="text" placeholder="Search..." value=searchTerm)
+          input#searchButton(name="searchButton" type="submit" value="Search")
+      div.paraSub
+        a.button(href='/books/new') Create New Book
+      table
+        thead
+          tr
+            th Title
+            th Author
+            th Genre
+            th Year
+        tbody
+          each Book in Books
+            tr
+              td
+                a(href='/books/' + Book.id)= Book.title 
+              td= Book.author
+              td= Book.genre
+              td= Book.year
+      //- form for the page buttons
+      p
+        form.pageButtons(method="get")
+          //- loop through the buttons integer, add a button passed in for each
+          - var n = 1;
+          while n <= buttons
+            //- give the 'active' class to the button that matches pageNumber passed in
+            if pageNumber == n
+              button.active(name="button" value= n)= n
+            else
+              button(name="button" value= n)= n
+            - n++
+          //- hidden input field to preserve searchTerm when user clicks a page button
+          input(type="hidden" name="search" value=searchTerm)

@@ -1,6 +1,7 @@
 body {
   padding: 10px 50px 50px;
   font: 18px "Garamond", serif;
+  background-color: #f7f7f7;
 }
 
 a {
@@ -32,6 +33,7 @@ form a.button, input[type=submit] {
   margin-right: 10px;
 }
 
+/* position buttons inside from left of container */
 .innerButtons {
   margin-left: 130px;
   margin-top: 0;
@@ -48,6 +50,12 @@ input[type=submit] {
 
 p {
   margin: 20px auto;
+}
+
+/* size/align divs that replaced non-behaving paragraphs */
+.paraSub {
+  margin: 0 0 25px 0;
+  align-self: flex-start;
 }
 
 ul {
@@ -104,6 +112,7 @@ input[type=text] {
   color: rgb(236, 15, 15);
 }
 
+/* Flex container to put the content to the center of the pages */
 .container {
     display: flex;
     flex-direction: column;
@@ -112,10 +121,12 @@ input[type=text] {
     width: fit-content;
 }
 
-h1 {
+/* make elements left-aligned of the centered flex container */
+h1, table, .deleteForm {
   align-self: flex-start;
 }
 
+/* Size page buttons, & make container a flexbox to make horizontal */
 .pageButtons {
   display: flex;
   gap: 4px;
@@ -126,14 +137,16 @@ h1 {
   padding: 8px 12px;
 }
 
+.pageButtons > button:hover {
+  cursor: pointer;
+}
+
+/* active class for currently selected butto */
 .active {
   color: red;
 }
 
-.deleteForm {
-  align-self: flex-start;
-}
-
+/* make links display: block for spacing/sizing purposes */
 p.innerButtons > a {
   display: block;
   width: fit-content;
