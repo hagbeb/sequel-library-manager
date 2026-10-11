@@ -53,6 +53,8 @@ router.get('/', function(req, res, next) {
 router.get('/books', asyncHandler(async (req, res) => {
   // variable to store books
   let Books;
+  // variable to store search term, so we can pass this to Pug & so preserve the ...
+  // ... existing search term
   let searchTerm = "";
   // if the user made a search
   if (req.query.search) {
@@ -113,7 +115,7 @@ router.get('/books', asyncHandler(async (req, res) => {
   const endBook = (pageNumber * booksPerPage);
   // slice the array to show based on the start and end books above
   const newBooks = Books.rows.slice(startBook, endBook);
-  // render template. Pass in new books array, buttonsNeeded & pageNumber
+  // render template. Pass in new books array, buttonsNeeded, pageNumber & searchTerm
   res.render('index', { title: 'Books', Books: newBooks, buttons: buttonsNeeded, pageNumber: pageNumber, searchTerm: searchTerm });
 }));
 

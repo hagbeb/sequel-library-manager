@@ -3,7 +3,10 @@ extends layout
 block content
   
   h1= title
-
+  p
+    form(method="get")
+      input#search(name="search" type="text" placeholder="Search..." value=searchTerm)
+      input#searchButton(name="searchButton" type="submit" value="Search")
   p
     a.button(href='/books/new') Create New Book
   table
@@ -23,8 +26,6 @@ block content
           td= Book.year
   p
     form(method="get")
-      input#search(name="search" type="text" placeholder="Search..." value=searchTerm)
-      input#searchButton(name="searchButton" type="submit" value="Search")
       - var n = 1;
       while n <= buttons
         if pageNumber == n
@@ -32,3 +33,4 @@ block content
         else
           button(name="button" value= n)= n
         - n++
+      input(type="hidden" name="search" value=searchTerm)
