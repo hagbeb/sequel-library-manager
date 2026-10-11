@@ -24,3 +24,12 @@ block content
           td= Book.author
           td= Book.genre
           td= Book.year
+  p
+    form(method="get")
+      - var n = 1;
+      while n <= buttons
+        if pageNumber == n
+          button.active(name="button" value= n)= n
+        else
+          button(name="button" value= n)= n
+        - n++

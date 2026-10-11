@@ -1,8 +1,18 @@
 var express = require('express');
 var router = express.Router();
 
+// extract the property Op from sequelize
+const { Op } = require('sequelize');
+
 // import Book model exported from Book.js, via /models/index.js
 const Book = require('../models').Book;
+
+
+// set how many books we want to display per page
+const booksPerPage = 10;
+
+
+
 
 /* Handler function to wrap each route that requires an async call. */
 function asyncHandler(cb){
@@ -41,11 +51,68 @@ router.get('/', function(req, res, next) {
 
 // books route
 router.get('/books', asyncHandler(async (req, res) => {
-  // findAll books so we can render the list of books
-  const Books = await Book.findAll();
-  console.log('Books: ', Books);
-  // render template. Pass in data returned from Books.findAll
-  res.render('index', { title: 'Books', Books });
+  // variable to store books
+  let Books;
+  // if the user made a search
+  if (req.query.search) {
+    // find books which contain the search term in one of their fields
+    Books = await Book.findAndCountAll({
+      where: {
+        // use Op.or & Op.like to see if search was in any of the fields
+        [Op.or]: [
+          {
+            title: {
+              [Op.like]: `%${req.query.search}%`
+            }
+          },
+          {
+            author: {
+              [Op.like]: `%${req.query.search}%`
+            }
+          },
+          {
+            genre: {
+              [Op.like]: `%${req.query.search}%`
+            }
+          },
+          {
+            year: {
+              [Op.like]: `%${req.query.search}%`
+            }
+          }
+        ]
+      }
+    });
+  // if the user didn't search, then retrieve all books
+  } else {
+    // findAll books so we can render the list of books
+    Books = await Book.findAndCountAll();
+  }
+
+  // GET CURRENT PAGE & BUTTONS NEEDED
+  // calculate the number of pages/buttons needed
+  const buttonsNeeded = Math.ceil(Books.count / booksPerPage);
+  // variable to store the active page/button
+  let pageNumber;
+  // Get the page to display from query param. If the user clicked a page button
+  if (req.query.button) {
+    console.log('button clicked: ', req.query.button);
+    // set that button to the pageNumber
+    pageNumber = req.query.button;
+  } else {
+    // set the pageNumber to 1 ie to show the first page
+    pageNumber = 1;
+  }
+
+  // UPDATE BOOKS ARRAY FOR ACTIVE PAGE
+  // calculate which should be the first book on the page, depending on page number
+  const startBook = (pageNumber * booksPerPage) - booksPerPage;
+  // calculate the last book on the page. Don't - 1 as array.slice(, end) is not inclusive
+  const endBook = (pageNumber * booksPerPage);
+  // slice the array to show based on the start and end books above
+  const newBooks = Books.rows.slice(startBook, endBook);
+  // render template. Pass in new books array, buttonsNeeded & pageNumber
+  res.render('index', { title: 'Books', Books: newBooks, buttons: buttonsNeeded, pageNumber: pageNumber });
 }));
 
 // New Book route (GET version to show the form)
@@ -56,7 +123,6 @@ router.get('/books/new', (req, res) => {
 // POST new book
 router.post('/books/new', asyncHandler(async (req, res) => {
   // create new instance in Book table. req.body contains the form details
-  console.log('req.body: ', req.body);
   const book = await Book.create(req.body);
   // redirect to the new book, using it's newly created id:
   res.redirect('/books/' + book.id);
