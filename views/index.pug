@@ -25,7 +25,7 @@ block content
           td= Book.genre
           td= Book.year
   p
-    form(method="get")
+    form.pageButtons(method="get")
       - var n = 1;
       while n <= buttons
         if pageNumber == n

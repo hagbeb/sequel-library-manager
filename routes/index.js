@@ -54,7 +54,7 @@ router.get('/books', asyncHandler(async (req, res) => {
   // variable to store books
   let Books;
   // variable to store search term, so we can pass this to Pug & so preserve the ...
-  // ... existing search term
+  // ... existing search term. Set to default "" in case there is no req.query.search
   let searchTerm = "";
   // if the user made a search
   if (req.query.search) {
@@ -100,7 +100,6 @@ router.get('/books', asyncHandler(async (req, res) => {
   let pageNumber;
   // Get the page to display from query param. If the user clicked a page button
   if (req.query.button) {
-    console.log('button clicked: ', req.query.button);
     // set that button to the pageNumber
     pageNumber = req.query.button;
   } else {
